@@ -1,107 +1,143 @@
-import { StyleSheet, Text, View, TextInput, Button, Pressable } from 'react-native'
-import React, { useState, useContext } from 'react';
-import AntDesign from "react-native-vector-icons/AntDesign"
-import Fontisto from "react-native-vector-icons/Fontisto"
-import { signUp } from '../auth/auth'; // Ensure this function is correctly set up
+import { StyleSheet, Text, View, TextInput, Button, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import { auth } from '../config/firebaseConfig';
 
+const Signup = ({ navigation }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [error, setError] = useState('');
 
+  const handleSignup = async () => {
+    try {
+      await auth().createUserWithEmailAndPassword(email, password);
+      console.log('User registered successfully!');
+      navigation.navigate('Login');
+    } catch (error) {
+      setError(error.message);
+    }
+  };
 
-const Signup = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.createAccountContainer}>
         <Text style={styles.createAccountText}>Create Account</Text>
       </View>
       <View style={styles.inputContainer}>
-        <AntDesign name={"user"} size={24} color={"gray"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder='Username' />
+        <AntDesign name="user" size={24} color="gray" style={styles.inputIcon} />
+        <TextInput
+          style={styles.textInput}
+          placeholder="Username"
+          value={username}
+          onChangeText={setUsername}
+        />
       </View>
       <View style={styles.inputContainer}>
-        <Fontisto name={"locked"} size={24} color={"gray"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder='Password' secureTextEntry />
+        <Fontisto name="locked" size={24} color="gray" style={styles.inputIcon} />
+        <TextInput
+          style={styles.textInput}
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
       </View>
       <View style={styles.inputContainer}>
-        <AntDesign name={"mail"} size={24} color={"gray"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder='Email'  />
+        <AntDesign name="mail" size={24} color="gray" style={styles.inputIcon} />
+        <TextInput
+          style={styles.textInput}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+        />
       </View>
       <View style={styles.inputContainer}>
-        <AntDesign name={"mobile1"} size={24} color={"gray"} style={styles.inputIcon} />
-        <TextInput style={styles.textInput} placeholder='Mobile' keyboardType={'numeric'}/>
+        <AntDesign name="phone" size={24} color="gray" style={styles.inputIcon} />
+        <TextInput
+          style={styles.textInput}
+          placeholder="Mobile"
+          keyboardType="numeric"
+          value={mobile}
+          onChangeText={setMobile}
+        />
       </View>
-  
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <View style={styles.signInButtonContainer}>
-        <Button title='Sign Up' color={"darkturquoise"} style={styles.buttonText} onPress={() => navigation.navigate('Homescreen')} />
+        <Button title="Sign Up" color="darkturquoise" onPress={handleSignup} />
       </View>
-<View style={styles.footerContainer}>
-      <Text style={styles.footerText}>Already Have an Account?</Text>
-      <Pressable
-        onPress={() => navigation.navigate('Login')} >
-        <Text style={styles.footerCreate} >Sign In</Text>
-      </Pressable>
-</View>
+      <View style={styles.footerContainer}>
+        <Text style={styles.footerText}>Already Have an Account?</Text>
+        <Pressable onPress={() => navigation.navigate('Login')}>
+          <Text style={styles.footerCreate}>Sign In</Text>
+        </Pressable>
+      </View>
     </View>
-  )
-}
+  );
+};
 
 export default Signup;
+
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     flex: 1,
-
   },
   createAccountContainer: {
     marginTop: 100,
-
   },
   createAccountText: {
-    textAlign: "center",
+    textAlign: 'center',
     fontSize: 30,
-    color: "#262626",
+    color: '#262626',
     marginBottom: 30,
-    fontWeight:"bold",
+    fontWeight: 'bold',
   },
   inputContainer: {
-    backgroundColor: "white",
-    flexDirection: "row",
+    backgroundColor: 'white',
+    flexDirection: 'row',
     borderRadius: 20,
     marginHorizontal: 40,
     elevation: 10,
     marginVertical: 20,
-    alignItems: "center",
+    alignItems: 'center',
     height: 50,
   },
   inputIcon: {
     marginLeft: 15,
     marginRight: 5,
-
   },
   textInput: {
     flex: 1,
+    paddingLeft: 10,
   },
   signInButtonContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginVertical: 30,
   },
   buttonText: {
-    textAlign: "center",
+    textAlign: 'center',
     borderRadius: 20,
   },
-  footerContainer : {
-    alignItems:"center",
+  footerContainer: {
+    alignItems: 'center',
     marginTop: 100,
   },
-  footerText:{
-    color:"black",
+  footerText: {
+    color: 'black',
     fontSize: 15,
-  
   },
-  footerCreate:{
-    color:"darkturquoise",
-    textDecorationLine:"underline",
-    fontWeight: "500",
+  footerCreate: {
+    color: 'darkturquoise',
+    textDecorationLine: 'underline',
+    fontWeight: '500',
     fontSize: 15,
-
-  }
-
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
+  },
 });

@@ -1,13 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { auth } from '../config/firebaseConfig'; // Make sure the path is correct
+import Login from './Login';
 
 const ProfileScreen = () => {
   const name = 'Matie Rehman';
   const contactNumber = '123-456-7890';
+  const navigation = useNavigation();
 
-  const handleContactUsPress = () => {
-    // Handle contact us button press
-    console.log('Contact us button pressed');
+  const handleLogout = async () => {
+    try {
+      await auth().signOut();
+      console.log('User logged out successfully!');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
   };
 
   return (
@@ -23,49 +35,52 @@ const ProfileScreen = () => {
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Language</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleContactUsPress}>
-          <Text style={styles.buttonText}>Contact Us</Text>
+        <TouchableOpacity style={styles.button} onPress={handleLogout}>
+          <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
+export default ProfileScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
   profileInfo: {
-    marginBottom: 20,
+    marginBottom: 40,
   },
   label: {
     fontSize: 18,
     fontWeight: 'bold',
   },
   value: {
-    fontSize: 16,
+    fontSize: 18,
+    marginBottom: 20,
   },
   buttonsContainer: {
-    flexDirection: 'row',
+    marginTop: 20,
   },
   button: {
     backgroundColor: 'darkturquoise',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginHorizontal: 10,
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: 'center',
   },
   buttonText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
-
-export default ProfileScreen;

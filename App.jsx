@@ -1,77 +1,109 @@
-import React, { useEffect, useContext, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import SplashScreen from 'react-native-splash-screen';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { firebase } from '@react-native-firebase/auth';
+import SplashScreen from 'react-native-splash-screen';
 import Login from './src/screen/Login';
 import Signup from './src/screen/Signup';
-import Homescreen from './src/screen/Homescreen';
-import Contactscreen from './src/screen/Contactscreen';
-import Profilescreen from './src/screen/Profilescreen';
-
-const Tab = createBottomTabNavigator();
+import HomeScreen from './src/screen/Homescreen';
+import ContactScreen from './src/screen/Contactscreen';
+import ProfileScreen from './src/screen/Profilescreen';
 
 const Stack = createNativeStackNavigator();
-function MainTabNavigator() {
+const Tab = createBottomTabNavigator();
+
+const MainTabNavigator = () => {
   return (
     <Tab.Navigator
-        tabBarOptions={{
-        activeTintColor: 'darkturquoise', 
-        inactiveTintColor: 'gray', 
-      }}
-    >
+      screenOptions={{
+        activeTintColor: 'darkturquoise',
+        inactiveTintColor: 'gray',
+      }}>
       <Tab.Screen
         name="Home"
-        component={Homescreen}
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="home" color={"black"} size={25}  />
+            <AntDesign name="home" color={color} size={size} />
           ),
         }}
       />
       <Tab.Screen
         name="Contacts"
-        component={Contactscreen}
+        component={ContactScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="contacts" color={"black"} size={25} />
+            <AntDesign name="contacts" color={color} size={size} />
           ),
         }}
       />
       <Tab.Screen
         name="Profile"
-        component={Profilescreen}
+        component={ProfileScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="profile" color={"black"} size={25} />
+            <AntDesign name="profile" color={color} size={size} />
           ),
-        }} />
+        }}
+      />
     </Tab.Navigator>
   );
-}
+};
 
 const App = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    SplashScreen.hide();
+    // Simulate a short delay for splash screen
+    const timer = setTimeout(() => {
+      SplashScreen.hide();
+      setLoading(false);
+    }, 2000); // 2 seconds delay for splash screen
+
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      setUser(user);
+    });
+
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="darkturquoise" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{
-        headerShown: false
-      }}>
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Signup" component={Signup} />
-        <Stack.Screen name="Homescreen" component={MainTabNavigator} />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {user ? (
+          <Stack.Screen name="MainTabNavigator" component={MainTabNavigator} />
+        ) : (
+          <>
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Signup" component={Signup} />
+          </>
+        )}
       </Stack.Navigator>
-
-
-
     </NavigationContainer>
-  )
-}
+  );
+};
 
-export default App
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
-
-
+export default App;
