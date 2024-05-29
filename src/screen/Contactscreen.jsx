@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, PermissionsAndroid, FlatList, TouchableOpacity, Linking, StyleSheet } from 'react-native';
+import { View, Text, PermissionsAndroid, FlatList, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import Contacts from 'react-native-contacts';
+import {firestore} from '../config/firebaseConfig'
+import { auth } from '../config/firebaseConfig';
+import { addVerifiedContact } from '../utils/firestoreUtils';
 
 const ContactScreen = () => {
   const [contacts, setContacts] = useState([]);
@@ -37,14 +40,45 @@ const ContactScreen = () => {
     try {
       const phoneContacts = await Contacts.getAll();
       setContacts(phoneContacts);
+      saveContactsToFirestore(phoneContacts);
     } catch (error) {
       console.error('Error fetching contacts:', error);
       setError('Error fetching contacts');
     }
   };
 
+  const saveContactsToFirestore = async (contacts) => {
+    const user = auth().currentUser;
+    if (user) {
+      try {
+        const batch = firestore().batch();
+        const existingContacts = await firestore().collection('verifiedContacts').where('userId', '==', user.uid).get();
+        const existingContactNumbers = existingContacts.docs.map(doc => doc.data().phoneNumber);
+        contacts.forEach(contact => {
+          const contactPhoneNumber = contact.phoneNumbers[0]?.number;
+          if (!existingContactNumbers.includes(contactPhoneNumber)) {
+            const contactData = {
+              name: contact.displayName,
+              phoneNumber: contactPhoneNumber,
+            };
+            const contactRef = firestore().collection('verifiedContacts').doc();
+            batch.set(contactRef, { userId: user.uid, ...contactData });
+          }
+        });
+        await batch.commit();
+        console.log('Contacts added successfully');
+      } catch (error) {
+        console.error('Error adding contacts:', error);
+      }
+    } else {
+      console.error('No authenticated user found');
+    }
+  };
+
   const handleContactPress = (phoneNumber) => {
-    Linking.openURL(`tel:${phoneNumber}`);
+    if (phoneNumber) {
+      Linking.openURL(`tel:${phoneNumber}`);
+    }
   };
 
   const renderItem = ({ item }) => (

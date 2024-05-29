@@ -11,6 +11,7 @@ import Signup from './src/screen/Signup';
 import HomeScreen from './src/screen/Homescreen';
 import ContactScreen from './src/screen/Contactscreen';
 import ProfileScreen from './src/screen/Profilescreen';
+import ContactLogsScreen from './src/screen/ContactLogScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -18,16 +19,26 @@ const Tab = createBottomTabNavigator();
 const MainTabNavigator = () => {
   return (
     <Tab.Navigator
-      screenOptions={{
-        activeTintColor: 'darkturquoise',
-        inactiveTintColor: 'gray',
-      }}>
+    screenOptions={{
+      tabBarActiveTintColor: 'darkturquoise',
+      tabBarInactiveTintColor: 'gray',
+    }}>
+     
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="home" color={color} size={size} />
+          ),
+        }}
+      />
+       <Tab.Screen
+        name="ContactLogs"
+        component={ContactLogsScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="clockcircleo" color={color} size={size} />
           ),
         }}
       />
