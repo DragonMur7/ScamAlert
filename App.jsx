@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, DeviceEventEmitter } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,8 +11,9 @@ import Signup from './src/screen/Signup';
 import HomeScreen from './src/screen/Homescreen';
 import ContactScreen from './src/screen/Contactscreen';
 import ProfileScreen from './src/screen/Profilescreen';
+import CallListener from './src/components/CallListener';
+import CallerScreen from './src/screen/CallerScreen';
 import ContactLogsScreen from './src/screen/ContactLogScreen';
-
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -56,7 +57,7 @@ const MainTabNavigator = () => {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="profile" color={color} size={size} />
+            <AntDesign name="profile" color={color} size={size}  />
           ),
         }}
       />
@@ -64,20 +65,18 @@ const MainTabNavigator = () => {
   );
 };
 
+
 const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [incomingNumber, setIncomingNumber] = useState(null);
+  const [verificationResult, setVerificationResult] = useState(null);
 
   useEffect(() => {
-    // Simulate a short delay for splash screen
-    const timer = setTimeout(() => {
-      SplashScreen.hide();
-      setLoading(false);
-    }, 2000); // 2 seconds delay for splash screen
+    SplashScreen.hide();
+    const timer = setTimeout(() => setLoading(false), 2000);
 
-    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-      setUser(user);
-    });
+    const unsubscribe = firebase.auth().onAuthStateChanged(user => setUser(user));
 
     return () => {
       clearTimeout(timer);
@@ -85,18 +84,32 @@ const App = () => {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="darkturquoise" />
-      </View>
-    );
-  }
+  const handleIncomingCall = (number, result) => {
+    setIncomingNumber(number);
+    setVerificationResult(result);
+  };
+
+  const closeCallerScreen = () => {
+    setIncomingNumber(null);
+    setVerificationResult(null);
+  };
 
   return (
     <NavigationContainer>
+      <CallListener onIncomingCall={handleIncomingCall} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {user ? (
+        {incomingNumber && verificationResult ? (
+          <Stack.Screen name="CallerScreen">
+            {props => (
+              <CallerScreen
+                {...props}
+                incomingNumber={incomingNumber}
+                verificationResult={verificationResult}
+                onClose={closeCallerScreen}
+              />
+            )}
+          </Stack.Screen>
+        ) : user ? (
           <Stack.Screen name="MainTabNavigator" component={MainTabNavigator} />
         ) : (
           <>
