@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, PermissionsAndroid, FlatList, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import { View, Text, PermissionsAndroid, FlatList, TouchableOpacity, StyleSheet, Linking, TextInput } from 'react-native';
 import Contacts from 'react-native-contacts';
 import {firestore} from '../config/firebaseConfig'
 import { auth } from '../config/firebaseConfig';
@@ -9,6 +9,7 @@ const ContactScreen = () => {
   const [contacts, setContacts] = useState([]);
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     requestContactsPermission();
@@ -53,18 +54,18 @@ const ContactScreen = () => {
       try {
         const batch = firestore().batch();
         const existingContacts = await firestore().collection('verifiedContacts').where('userId', '==', user.uid).get();
-        const existingContactNumbers = existingContacts.docs.map(doc => doc.data().phoneNumber);
+        const existingContactNumbers = existingContacts.docs.map(doc => doc.id); // Use document ID (phone number) instead of data field
         
         contacts.forEach(contact => {
           // Check if phoneNumbers array exists and has at least one entry
           if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
-            const contactPhoneNumber = contact.phoneNumbers[0].number;
+            const contactPhoneNumber = contact.phoneNumbers[0].number.replace(/\s/g, ''); // Remove spaces from phone number
             if (!existingContactNumbers.includes(contactPhoneNumber)) {
               const contactData = {
                 name: contact.displayName,
                 phoneNumber: contactPhoneNumber,
               };
-              const contactRef = firestore().collection('verifiedContacts').doc();
+              const contactRef = firestore().collection('verifiedContacts').doc(contactPhoneNumber); // Use phone number as document ID
               batch.set(contactRef, { userId: user.uid, ...contactData });
             }
           }
@@ -95,13 +96,23 @@ const ContactScreen = () => {
     </TouchableOpacity>
   );
 
+  const filteredContacts = contacts.filter(contact =>
+    contact.displayName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search contacts"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
       {error ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : permissionGranted ? (
         <FlatList
-          data={contacts}
+          data={filteredContacts}
           renderItem={renderItem}
           keyExtractor={(item) => item.recordID}
           style={styles.contactList}
@@ -151,6 +162,15 @@ const styles = StyleSheet.create({
   contactPhone: {
     fontSize: 16,
     color: 'darkturquoise',
+  },
+  searchInput: {
+   
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
   },
 });
 

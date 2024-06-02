@@ -13,6 +13,7 @@ import ContactScreen from './src/screen/Contactscreen';
 import ProfileScreen from './src/screen/Profilescreen';
 import CallListener from './src/components/CallListener';
 import CallerScreen from './src/screen/CallerScreen';
+import ReportScreen from './src/screen/ReportScreen';
 import ContactLogsScreen from './src/screen/ContactLogScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -49,6 +50,15 @@ const MainTabNavigator = () => {
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="contacts" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Report"
+        component={ReportScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="exclamationcircle" color={color} size={size} />
           ),
         }}
       />
