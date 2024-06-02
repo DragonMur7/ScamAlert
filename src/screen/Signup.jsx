@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, Button, Pressable } from 'react-native';
+import { StyleSheet,ScrollView, Text, View, TextInput, Button, Pressable } from 'react-native';
 import React, { useState } from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
@@ -20,9 +20,8 @@ const Signup = ({ navigation }) => {
       setError(error.message);
     }
   };
-
   return (
-    <View style={styles.container}>
+<ScrollView contentContainerStyle={styles.container}>
       <View style={styles.createAccountContainer}>
         <Text style={styles.createAccountText}>Create Account</Text>
       </View>
@@ -74,7 +73,7 @@ const Signup = ({ navigation }) => {
           <Text style={styles.footerCreate}>Sign In</Text>
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -82,27 +81,26 @@ export default Signup;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
-    flex: 1,
+    flexGrow: 1,
+    backgroundColor: "white",
+    justifyContent: 'center',
   },
   createAccountContainer: {
-    marginTop: 100,
+    marginTop: 50,
+    alignItems: 'center',
   },
   createAccountText: {
-    textAlign: 'center',
-    fontSize: 30,
-    color: '#262626',
-    marginBottom: 30,
+    fontSize: 24,
     fontWeight: 'bold',
   },
   inputContainer: {
-    backgroundColor: 'white',
-    flexDirection: 'row',
+    backgroundColor: "white",
+    flexDirection: "row",
     borderRadius: 20,
     marginHorizontal: 40,
     elevation: 10,
     marginVertical: 20,
-    alignItems: 'center',
+    alignItems: "center",
     height: 50,
   },
   inputIcon: {
@@ -114,25 +112,21 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   signInButtonContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 30,
   },
-  buttonText: {
-    textAlign: 'center',
-    borderRadius: 20,
-  },
   footerContainer: {
-    alignItems: 'center',
-    marginTop: 100,
+    alignItems: "center",
+    marginTop: 20,
   },
   footerText: {
-    color: 'black',
+    color: "black",
     fontSize: 15,
   },
   footerCreate: {
-    color: 'darkturquoise',
-    textDecorationLine: 'underline',
-    fontWeight: '500',
+    color: "darkturquoise",
+    textDecorationLine: "underline",
+    fontWeight: "500",
     fontSize: 15,
   },
   errorText: {

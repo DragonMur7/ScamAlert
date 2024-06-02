@@ -57,15 +57,20 @@ const CallListener = ({ onIncomingCall }) => {
         const verifiedRef = firestore().collection('verifiedContacts').doc(phoneNumber);
         const suspiciousRef = firestore().collection('suspiciousContacts').doc(phoneNumber);
         const scamRef = firestore().collection('scamContacts').doc(phoneNumber);
-  
+    
         const [verifiedDoc, suspiciousDoc, scamDoc] = await Promise.all([
           verifiedRef.get(),
           suspiciousRef.get(),
           scamRef.get()
         ]);
-  
+    
         if (verifiedDoc.exists) {
-          onIncomingCall(phoneNumber, 'verified');
+          // Check if the call has been marked as suspicious or scam
+          if (suspiciousDoc.exists || scamDoc.exists) {
+            onIncomingCall(phoneNumber, 'unknown');
+          } else {
+            onIncomingCall(phoneNumber, 'verified');
+          }
         } else if (suspiciousDoc.exists) {
           onIncomingCall(phoneNumber, 'suspicious');
         } else if (scamDoc.exists) {

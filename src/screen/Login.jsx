@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, Button, Pressable } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TextInput, Button, Pressable } from 'react-native';
 import React, { useState } from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
@@ -23,7 +23,7 @@ const Login = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.welcomeContainer}>
         <Text style={styles.welcomeText}>Welcome</Text>
       </View>
@@ -55,12 +55,13 @@ const Login = ({ navigation }) => {
         <Button title="Sign In" color="darkturquoise" onPress={handleLogin} />
       </View>
       <View style={styles.footerContainer}>
-        <Text style={styles.footerText}>Don't Have an Account?</Text>
-        <Pressable onPress={() => navigation.navigate('Signup')}>
-          <Text style={styles.footerCreate}>Create</Text>
-        </Pressable>
-      </View>
-    </View>
+  <Text style={styles.footerText}>Don't Have an Account?</Text>
+  <Pressable onPress={() => navigation.navigate('Signup')}>
+    <Text style={styles.footerCreate}>Create</Text>
+  </Pressable>
+</View>
+      <View style={{ marginBottom: 100 }} /> 
+    </ScrollView>
   );
 };
 
@@ -68,8 +69,9 @@ export default Login;
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
     backgroundColor: "white",
-    flex: 1,
+    justifyContent: 'center',
   },
   welcomeContainer: {
     marginTop: 200,

@@ -54,17 +54,22 @@ const ContactScreen = () => {
         const batch = firestore().batch();
         const existingContacts = await firestore().collection('verifiedContacts').where('userId', '==', user.uid).get();
         const existingContactNumbers = existingContacts.docs.map(doc => doc.data().phoneNumber);
+        
         contacts.forEach(contact => {
-          const contactPhoneNumber = contact.phoneNumbers[0]?.number;
-          if (!existingContactNumbers.includes(contactPhoneNumber)) {
-            const contactData = {
-              name: contact.displayName,
-              phoneNumber: contactPhoneNumber,
-            };
-            const contactRef = firestore().collection('verifiedContacts').doc();
-            batch.set(contactRef, { userId: user.uid, ...contactData });
+          // Check if phoneNumbers array exists and has at least one entry
+          if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
+            const contactPhoneNumber = contact.phoneNumbers[0].number;
+            if (!existingContactNumbers.includes(contactPhoneNumber)) {
+              const contactData = {
+                name: contact.displayName,
+                phoneNumber: contactPhoneNumber,
+              };
+              const contactRef = firestore().collection('verifiedContacts').doc();
+              batch.set(contactRef, { userId: user.uid, ...contactData });
+            }
           }
         });
+        
         await batch.commit();
         console.log('Contacts added successfully');
       } catch (error) {
