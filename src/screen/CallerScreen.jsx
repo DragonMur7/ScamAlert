@@ -15,7 +15,7 @@ const CallerScreen = ({ incomingNumber, verificationResult, onClose }) => {
     backgroundColor = 'lightyellow';
   } else if (verificationResult === 'scam') {
     message = 'Scam Call!';
-    backgroundColor = 'lightred';
+    backgroundColor = '#FFCDD2';
   } else {
     message = 'Unknown Contact';
     backgroundColor = 'lightgray';

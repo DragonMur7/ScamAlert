@@ -15,6 +15,8 @@ import CallListener from './src/components/CallListener';
 import CallerScreen from './src/screen/CallerScreen';
 import ReportScreen from './src/screen/ReportScreen';
 import ContactLogsScreen from './src/screen/ContactLogScreen';
+import ChatScreen from './src/screen/ChatScreen';
+import ForgetPassword from './src/screen/ForgotPassword';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -59,6 +61,15 @@ const MainTabNavigator = () => {
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="exclamationcircle" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="wechat" color={color} size={size} />
           ),
         }}
       />
@@ -124,6 +135,7 @@ const App = () => {
         ) : (
           <>
             <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
             <Stack.Screen name="Signup" component={Signup} />
           </>
         )}
@@ -131,7 +143,6 @@ const App = () => {
     </NavigationContainer>
   );
 };
-
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,

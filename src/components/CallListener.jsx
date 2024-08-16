@@ -56,40 +56,35 @@ const CallListener = ({ onIncomingCall }) => {
     try {
       console.log('Checking caller number:', phoneNumber);
   
-      const verifiedRef = firestore().collection('verifiedContacts');
-      const verifiedSnapshot = await verifiedRef.get();
-  
-      console.log('Verified contacts snapshot:', verifiedSnapshot.docs.map(doc => doc.data()));
-  
+      // Create references to the collections and documents
+      const verifiedRef = firestore().collection('verifiedContacts').doc(phoneNumber);
       const suspiciousRef = firestore().collection('suspiciousContacts').doc(phoneNumber);
       const scamRef = firestore().collection('scamContacts').doc(phoneNumber);
+  
+      console.log('Fetching documents:', phoneNumber);
       
-      console.log('Fetching suspicious document:', phoneNumber);
+      // Fetch all documents in parallel
       const [verifiedDoc, suspiciousDoc, scamDoc] = await Promise.all([
-        verifiedRef.doc(phoneNumber).get(),
+        verifiedRef.get(),
         suspiciousRef.get(),
         scamRef.get()
       ]);
-    
+  
+      // Log fetched documents for debugging
       console.log('Verified document:', verifiedDoc.data());
       console.log('Suspicious document:', suspiciousDoc.data());
       console.log('Scam document:', scamDoc.data());
-    
-      if (verifiedDoc.exists) {
-        // Check if the call has been marked as suspicious or scam
-        if (suspiciousDoc.exists || scamDoc.exists) {
-          console.log('Call status: unknown, Contact Name:', verifiedDoc.data().name);
-          onIncomingCall(phoneNumber, 'unknown');
-        } else {
-          console.log('Call status: verified, Contact Name:', verifiedDoc.data().name);
-          onIncomingCall(phoneNumber, 'verified');
-        }
+  
+      // Prioritize scam and suspicious contacts over verified contacts
+      if (scamDoc.exists) {
+        console.log('Call status: scam');
+        onIncomingCall(phoneNumber, 'scam');
       } else if (suspiciousDoc.exists) {
         console.log('Call status: suspicious');
         onIncomingCall(phoneNumber, 'suspicious');
-      } else if (scamDoc.exists) {
-        console.log('Call status: scam');
-        onIncomingCall(phoneNumber, 'scam');
+      } else if (verifiedDoc.exists) {
+        console.log('Call status: verified, Contact Name:', verifiedDoc.data().name);
+        onIncomingCall(phoneNumber, 'verified');
       } else {
         console.log('Call status: unknown');
         onIncomingCall(phoneNumber, 'unknown');

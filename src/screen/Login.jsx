@@ -50,20 +50,23 @@ const Login = ({ navigation }) => {
         />
       </View>
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      <Text style={styles.forgotPasswordText}>Forgot your Password?</Text>
+      <Pressable onPress={() => navigation.navigate('ForgetPassword')}>
+        <Text style={styles.forgotPasswordText}>Forgot your Password?</Text>
+      </Pressable>
       <View style={styles.signInButtonContainer}>
         <Button title="Sign In" color="darkturquoise" onPress={handleLogin} />
       </View>
       <View style={styles.footerContainer}>
-  <Text style={styles.footerText}>Don't Have an Account?</Text>
-  <Pressable onPress={() => navigation.navigate('Signup')}>
-    <Text style={styles.footerCreate}>Create</Text>
-  </Pressable>
-</View>
-      <View style={{ marginBottom: 100 }} /> 
+        <Text style={styles.footerText}>Don't Have an Account?</Text>
+        <Pressable onPress={() => navigation.navigate('Signup')}>
+          <Text style={styles.footerCreate}>Create</Text>
+        </Pressable>
+      </View>
+      <View style={{ marginBottom: 100 }} />
     </ScrollView>
   );
 };
+
 
 export default Login;
 

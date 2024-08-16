@@ -4,6 +4,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import { auth } from '../config/firebaseConfig';
 
+
 const Signup = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

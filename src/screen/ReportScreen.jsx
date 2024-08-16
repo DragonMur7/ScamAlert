@@ -1,91 +1,108 @@
 
 
-import React from 'react';
-import { View, Text,ScrollView, StyleSheet, Button,TouchableOpacity, Linking } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { firestore } from '../config/firebaseConfig';
 
 const ReportScreen = () => {
-  const handleDialerButtonPress = () => {
-    Linking.openURL('tel:+080055055');
-  };
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [description, setDescription] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleComplaintButtonPress = () => {
-    Linking.openURL('https://complaint.pta.gov.pk/RegisterComplaint');
+  const submitComplaint = async () => {
+    if (!phoneNumber || !description) {
+      Alert.alert('Error', 'Please fill all the fields.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const complaintData = {
+        phoneNumber,
+        description,
+        status: 'pending',
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      };
+
+      await firestore().collection('complaints').add(complaintData);
+      Alert.alert('Success', 'Complaint submitted successfully.');
+      setPhoneNumber('');
+      setDescription('');
+    } catch (error) {
+      console.error('Error submitting complaint:', error);
+      Alert.alert('Error', 'Could not submit the complaint.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View>
-        <Text style={styles.title}>Preventive Actions Against Scam Calls</Text>
-        <Text style={[styles.heading, styles.blackText]}>Protect Yourself</Text>
-        <Text style={styles.content}>
-          - Do not open suspicious texts or click on links.{"\n"}
-          - Scammers target people of all backgrounds, ages, and income levels across Pakistan.{"\n"}
-          - Scammers create believable stories that may convince you to give them more money or personal details.{"\n"}
-          - Warn friends and family about scams.{"\n"}
-          - Stop sending money if you're unsure.{"\n"}
-        </Text>
-        <Text style={[styles.heading, styles.blackText]}>Report Scams</Text>
-        <Text style={styles.content}>
-          - Report scam numbers to service providers.{"\n"}
-          - Report to PTA: 0800-55055 or online.{"\n"}
-          - PTA will block numbers and devices.{"\n"}
-          - Contact State Bank for financial frauds.{"\n"}
-        </Text>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleDialerButtonPress}>
-          <Text style={styles.buttonText}>Dial 0800-55055</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleComplaintButtonPress}>
-          <Text style={styles.buttonText}>Register Complaint</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+    <View style={styles.container}>
+      <Text style={styles.title}>Submit a Complaint</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number"
+        value={phoneNumber}
+        onChangeText={setPhoneNumber}
+        keyboardType="phone-pad"
+      />
+      <TextInput
+        style={styles.textArea}
+        placeholder="Description"
+        value={description}
+        onChangeText={setDescription}
+        multiline
+        numberOfLines={4}
+      />
+      <TouchableOpacity style={styles.button} onPress={submitComplaint} disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Submit</Text>
+        )}
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    backgroundColor: "white",
-    paddingHorizontal: 16,
-    paddingTop: 24,
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
   },
   title: {
-    color: 'black',
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  heading: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 16,
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginBottom: 20,
+    paddingHorizontal: 10,
   },
-  content: {
-    fontSize: 16,
-    marginTop: 8,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginTop: 24,
+  textArea: {
+    height: 100,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+    textAlignVertical: 'top',
   },
   button: {
     backgroundColor: 'darkturquoise',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 5,
+    padding: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    textAlign: 'center',
-  },
-  blackText: {
-    color: '#000',
+    fontWeight: 'bold',
   },
 });
 export default ReportScreen;
